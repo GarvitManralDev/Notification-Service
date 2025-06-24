@@ -9,8 +9,6 @@ import {
 import logger from "./config/logger.config";
 import { attachCorrelationIdMiddleware } from "./middlewares/correlation.middleware";
 import { setupMailerWorker } from "./processors/email.processor";
-import { addEmailToQueue } from "./producers/email.producer";
-import { NotificationDto } from "./dto/notification.dto";
 const app = express();
 
 app.use(express.json());
@@ -30,21 +28,9 @@ app.use("/api/v2", v2Router);
 app.use(appErrorHandler);
 app.use(genericErrorHandler);
 
-app.listen(serverConfig.PORT, () => {
+app.listen(serverConfig.PORT, async () => {
   logger.info(`Server is running on http://localhost:${serverConfig.PORT}`);
   logger.info(`Press Ctrl+C to stop the server.`);
   setupMailerWorker();
   logger.info("Mailer worker setup completed");
-
-  const sampleNotification: NotificationDto = {
-    to: "sample",
-    subject: "Sample Email",
-    templateId: "sample-template",
-    params: {
-      name: "John Doe",
-      orderId: "12345",
-    },
-  };
-
-  addEmailToQueue(sampleNotification);
 });
